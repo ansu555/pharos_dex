@@ -11,12 +11,12 @@ const buttonVariants = cva(
       variant: {
         default: "bg-[#113CFC] text-white hover:bg-[#113CFC]/90 dark:bg-[#F3C623] dark:text-black dark:hover:bg-[#F3C623]/90",
         destructive:
-          "bg-red-600 text-white hover:bg-red-700",
+          "bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:text-white dark:hover:bg-red-800",
         outline:
-          "border border-[#113CFC]/40 bg-white hover:bg-[#113CFC]/10 hover:text-[#113CFC] dark:border-[#F3C623]/20 dark:hover:border-[#F3C623]/40 dark:hover:bg-[#F3C623]/10 dark:hover:text-[#F3C623]",
+          "border border-[#113CFC]/40 bg-white text-[#113CFC] hover:bg-[#113CFC]/10 hover:text-[#113CFC] dark:border-[#F3C623]/20 dark:bg-transparent dark:text-[#F3C623] dark:hover:border-[#F3C623]/40 dark:hover:bg-[#F3C623]/10 dark:hover:text-[#F3C623]",
         secondary:
           "bg-[#E6EDFE] text-[#113CFC] hover:bg-[#D0E0FD] dark:bg-[#F3C623]/20 dark:text-[#F3C623] dark:hover:bg-[#F3C623]/30",
-        ghost: "hover:bg-[#113CFC]/10 hover:text-[#113CFC] dark:hover:bg-[#F3C623]/10 dark:hover:text-[#F3C623]",
+        ghost: "text-[#113CFC] hover:bg-[#113CFC]/10 hover:text-[#113CFC] dark:text-[#F3C623] dark:hover:bg-[#F3C623]/10 dark:hover:text-[#F3C623]",
         link: "text-[#113CFC] underline-offset-4 hover:underline dark:text-[#F3C623] dark:hover:text-[#F3C623]/80",
       },
       size: {

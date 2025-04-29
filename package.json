@@ -49,8 +49,10 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.0.4",
+    "connectkit": "^1.9.0",
     "date-fns": "^3.0.0",
     "embla-carousel-react": "8.5.1",
+    "ethers": "^5.8.0",
     "framer-motion": "^12.6.3",
     "html-react-parser": "^5.2.3",
     "input-otp": "1.4.1",
@@ -72,6 +74,7 @@
     "tailwindcss-animate": "^1.0.7",
     "thirdweb": "^5.96.4",
     "vaul": "^0.9.6",
+    "wagmi": "^2.15.1",
     "zod": "^3.24.1"
   },
   "devDependencies": {
