@@ -1,5 +1,4 @@
 // app/layout.tsx
-'use client'
 
 import './globals.css';
 import { Inter as FontSans } from 'next/font/google';
@@ -9,7 +8,7 @@ import BackgroundPaths from '@/components/animated-background';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Providers as ExistingProviders } from '@/components/providers';
-
+import { Web3Providers } from '../components/web3/Web3Providers'
 // ← NEW imports:
 import { WagmiConfig } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -21,11 +20,7 @@ const fontMono = FontMono({ subsets: ['latin'], weight: ['400'], variable: '--fo
 
 const queryClient = new QueryClient();
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${fontSans.variable} ${fontMono.variable} font-sans relative`}>
@@ -54,7 +49,11 @@ export default function RootLayout({
                   disableTransitionOnChange
                 >
                   <BackgroundPaths />
-                  {children}
+                  {/* ← here: */}
+          <Web3Providers>
+            {children}
+          </Web3Providers>
+                  
                 </ThemeProvider>
               </ExistingProviders>
             </ConnectKitProvider>
@@ -64,5 +63,5 @@ export default function RootLayout({
         <Analytics />
       </body>
     </html>
-  )
+  );
 }
