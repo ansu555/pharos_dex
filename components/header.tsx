@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { ModeToggle } from "@/components/mode-toggle"
 import { Search } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { ConnectKitButton } from 'connectkit';
 
 export function Header() { 
   const pathname = usePathname()
@@ -46,6 +47,17 @@ export function Header() {
           </nav>
         </div>
         <div className="flex items-center gap-2">
+        <ConnectKitButton.Custom>
+            {({ isConnected, show, truncatedAddress }) => (
+              <Button
+                onClick={show}
+                variant="outline"
+                size="default"
+              >
+                {isConnected ? truncatedAddress : "Connect Wallet"}
+              </Button>
+            )}
+          </ConnectKitButton.Custom>
           {/* <Button 
             variant="ghost" 
             size="icon" 
