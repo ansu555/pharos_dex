@@ -1,11 +1,11 @@
-// src/connectWeb3.js
+// connectWeb3.ts
 import { createConfig, http } from 'wagmi';
 import { mainnet, polygon, optimism, arbitrum } from 'wagmi/chains';
 import { getDefaultConfig } from 'connectkit';
 
-export const config = createConfig(
+export const wagmiConfig = createConfig(
   getDefaultConfig({
-    appName: 'hello-wallet',
+    appName: 'Pharos DEX',
     chains: [mainnet, polygon, optimism, arbitrum],
     transports: {
       [mainnet.id]: http(),
@@ -13,5 +13,6 @@ export const config = createConfig(
       [optimism.id]: http(),
       [arbitrum.id]: http(),
     },
+    // walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID,
   })
 );

@@ -5,7 +5,7 @@ import { ReactNode } from 'react'
 import { WagmiConfig } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ConnectKitProvider } from 'connectkit'
-import { config as wagmiConfig } from '@/app/services/wallet/connectWeb3'
+import {  wagmiConfig } from '../../app/services/connectWeb3'
 
 const queryClient = new QueryClient()
 
