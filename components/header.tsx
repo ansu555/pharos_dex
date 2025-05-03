@@ -22,7 +22,25 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur dark:bg-[#171717]/95 shadow">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-6 md:gap-10">
-          {/* … your logo & nav links … */}
+          {/* Logo can go here */}
+          <Link href="/" className="font-bold text-lg">
+            PharosDEX
+          </Link>
+          {/* Navigation links */}
+          <nav className="flex gap-4">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "text-sm font-medium transition-colors hover:text-primary",
+                  pathname === item.href ? "text-primary underline" : "text-muted-foreground"
+                )}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </nav>
         </div>
         <div className="flex items-center gap-2">
           {/* ← Connect Wallet button */}
