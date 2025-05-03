@@ -2,7 +2,7 @@
 'use client'
 
 import { ReactNode } from 'react'
-import { WagmiConfig } from 'wagmi'
+import { WagmiProvider } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ConnectKitProvider } from 'connectkit'
 import {  wagmiConfig } from '../../app/services/connectWeb3'
@@ -11,7 +11,7 @@ const queryClient = new QueryClient()
 
 export function Web3Providers({ children }: { children: ReactNode }) {
   return (
-    <WagmiConfig config={wagmiConfig}>
+    <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <ConnectKitProvider
           mode="light"
@@ -25,6 +25,6 @@ export function Web3Providers({ children }: { children: ReactNode }) {
           {children}
         </ConnectKitProvider>
       </QueryClientProvider>
-    </WagmiConfig>
+    </WagmiProvider>
   )
 }

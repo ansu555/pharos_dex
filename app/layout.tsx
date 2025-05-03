@@ -9,6 +9,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Providers as ExistingProviders } from '@/components/providers'
 import { Web3Providers } from '@/components/web3/Web3Providers'
 import { ReduxProvider } from '../components/redux-provider'
+import { Header } from "@/components/header";
 
 const fontSans = FontSans({ subsets: ['latin'], variable: '--font-sans' })
 const fontMono = FontMono({ subsets: ['latin'], weight: ['400'], variable: '--font-mono' })

@@ -4,12 +4,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
-import { Search } from "lucide-react";
+import { ConnectKitButton } from "connectkit";
 import { cn } from "@/lib/utils";
-import { ConnectKitButton } from 'connectkit';
+import { useAccount } from "wagmi";
+import { KycVerification } from "@/components/web3/KYC_verification";
 
 export function Header() {
   const pathname = usePathname();
+  const { address: userAddress, isConnected } = useAccount();
+  const kycRegistry = process.env.NEXT_PUBLIC_KYC_REGISTRY_ADDRESS!;
 
   const navItems = [
     { name: "Home", href: "/" },
@@ -21,12 +24,11 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur dark:bg-[#171717]/95 shadow">
       <div className="container flex h-16 items-center justify-between">
+        {/* Logo & nav */}
         <div className="flex items-center gap-6 md:gap-10">
-          {/* Logo can go here */}
           <Link href="/" className="font-bold text-lg">
             PharosDEX
           </Link>
-          {/* Navigation links */}
           <nav className="flex gap-4">
             {navItems.map((item) => (
               <Link
@@ -44,21 +46,24 @@ export function Header() {
             ))}
           </nav>
         </div>
+
+        {/* Wallet connect, KYC, and mode toggle */}
         <div className="flex items-center gap-2">
-          {/* ← Connect Wallet button */}
           <ConnectKitButton.Custom>
             {({ isConnected, show, truncatedAddress }) => (
-              <Button
-                onClick={show}
-                variant="outline"
-                size="default"
-              >
+              <Button onClick={show} variant="outline" size="default">
                 {isConnected ? truncatedAddress : "Connect Wallet"}
               </Button>
             )}
           </ConnectKitButton.Custom>
 
-          {/* your other controls */}
+          {isConnected && userAddress && (
+            <KycVerification
+              contractAddress={kycRegistry}
+              userAddress={userAddress}
+            />
+          )}
+
           <ModeToggle />
         </div>
       </div>
