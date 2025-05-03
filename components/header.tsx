@@ -33,8 +33,10 @@ export function Header() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "text-sm font-medium transition-colors hover:text-primary",
-                  pathname === item.href ? "text-primary underline" : "text-muted-foreground"
+                  "text-sm font-medium transition-colors",
+                  pathname === item.href
+                    ? "text-primary dark:text-[#F3C623] underline"
+                    : "text-gray-700 hover:text-primary dark:text-[#F3C623]/60 dark:hover:text-[#F3C623]"
                 )}
               >
                 {item.name}
