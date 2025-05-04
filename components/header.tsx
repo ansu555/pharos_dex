@@ -16,9 +16,9 @@ export function Header() {
 
   const navItems = [
     { name: "Home", href: "/" },
+    { name: "Swap", href: "/swap" },
     { name: "Cryptocurrencies", href: "/cryptocurrencies" },
     { name: "Exchanges", href: "/exchanges" },
-    { name: "News", href: "/news" },
   ];
 
   return (
