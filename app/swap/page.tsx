@@ -6,6 +6,7 @@ import { SparklesCore } from "@/components/background2/sparkles"
 import { FloatingPaper } from "@/components/background2/floating-paper"
 import { useMousePosition } from "@/hooks/use-mouse-position"
 import { useRef, useEffect } from "react"
+import SwapWidget from "@/components/swap-widget"
 
 export default function SwapPage() {
   // Check if any BackgroundPaths component might be added from elsewhere
@@ -42,10 +43,8 @@ export default function SwapPage() {
       
       <Header />
       
-      <main className="flex-1 container mx-auto px-4 py-8 flex items-center justify-center">
-        <h1 className="text-4xl font-bold text-center backdrop-blur-sm bg-background/30 px-6 py-3 rounded-lg">
-        
-        </h1>
+      <main className="flex-1 container mx-auto px-4 py-8">
+        <SwapWidget />
       </main>
       
       <Footer />
