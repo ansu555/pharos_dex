@@ -16,8 +16,8 @@ interface SparklesProps {
 export const SparklesCore = ({
   id = "tsparticles",
   background = "transparent",
-  minSize = 0.6,
-  maxSize = 1.4,
+  minSize = 1.6,
+  maxSize = 2.4,
   particleDensity = 100,
   className = "h-full w-full",
   particleColor = "#FFFFFF",

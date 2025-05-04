@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { FileText } from "lucide-react"
 
-export function FloatingPaper({ count = 5 }) {
+export function FloatingPaper({ count = 10 }) {
   const [dimensions, setDimensions] = useState({ width: 1200, height: 800 })
 
   useEffect(() => {
@@ -36,7 +36,11 @@ export function FloatingPaper({ count = 5 }) {
             y: Math.random() * dimensions.height,
           }}
           animate={{
-            x: [Math.random() * dimensions.width, Math.random() * dimensions.width, Math.random() * dimensions.width],
+            x: [
+              Math.random() * dimensions.width,
+              Math.random() * dimensions.width,
+              Math.random() * dimensions.width,
+            ],
             y: [
               Math.random() * dimensions.height,
               Math.random() * dimensions.height,
@@ -50,8 +54,8 @@ export function FloatingPaper({ count = 5 }) {
             ease: "linear",
           }}
         >
-          <div className="relative w-16 h-20 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 flex items-center justify-center transform hover:scale-110 transition-transform">
-            <FileText className="w-8 h-8 text-purple-400/50" />
+          <div className="relative w-24 h-32 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 flex items-center justify-center transform hover:scale-110 transition-transform">
+            <FileText className="w-12 h-12 text-purple-400/50" />
           </div>
         </motion.div>
       ))}
