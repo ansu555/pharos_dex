@@ -20,17 +20,19 @@ export function useSwapLogic() {
 
   // load token list
   useEffect(() => {
-    fetch("https://messari.io/tokenlist/messari-verified.json")
+    fetch("https://tokens.uniswap.org")
       .then((r) => r.json())
       .then((j) => {
-        const evm1 = j.tokens
-          .filter((t) => t.chainId === 1)
-          .slice(0, 20);
+        // Filter for Ethereum mainnet tokens (chainId: 1)
+        const evm1 = j.tokens.filter((t) => t.chainId === 1);
         setTokens(evm1);
         if (evm1.length >= 2) {
           setFromToken(evm1[0].address);
           setToToken(evm1[1].address);
         }
+      })
+      .catch((error) => {
+        console.error("Error fetching token list:", error);
       });
   }, []);
 

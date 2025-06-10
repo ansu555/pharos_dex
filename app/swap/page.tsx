@@ -22,8 +22,10 @@ import { useTheme } from "next-themes"
 interface Token {
   symbol: string
   name: string
-  logo: string
+  logoURI: string
   address: string
+  decimals: number
+  chainId: number
 }
 
 const SwapPage = () => {
@@ -112,9 +114,12 @@ const SwapPage = () => {
                 {fromToken ? (
                   <div className="flex items-center gap-2">
                     <img
-                      src={fromToken.logo}
+                      src={fromToken.logoURI}
                       alt={fromToken.symbol}
                       className="w-6 h-6"
+                      onError={(e) => {
+                        e.currentTarget.src = "/tokens/fallback.png";
+                      }}
                     />
                     <span>{fromToken.symbol}</span>
                   </div>
@@ -162,9 +167,12 @@ const SwapPage = () => {
                 {toToken ? (
                   <div className="flex items-center gap-2">
                     <img
-                      src={toToken.logo}
+                      src={toToken.logoURI}
                       alt={toToken.symbol}
                       className="w-6 h-6"
+                      onError={(e) => {
+                        e.currentTarget.src = "/tokens/fallback.png";
+                      }}
                     />
                     <span>{toToken.symbol}</span>
                   </div>
