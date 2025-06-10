@@ -6,9 +6,10 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Providers as ExistingProviders } from '@/components/providers'
+import { SwapProviders } from '@/components/swap-providers'
 import { Web3Providers } from '@/components/web3/Web3Providers'
 import { ReduxProvider } from '../components/redux-provider'
-import { Header } from "@/components/header";
+import { DynamicProviders } from '@/components/dynamic-providers'
 
 const fontSans = FontSans({ subsets: ['latin'], variable: '--font-sans' })
 const fontMono = FontMono({ subsets: ['latin'], weight: ['400'], variable: '--font-mono' })
@@ -17,8 +18,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${fontSans.variable} ${fontMono.variable} font-sans relative`}>
-      <ReduxProvider>
-          <ExistingProviders>
+        <ReduxProvider>
+          <DynamicProviders>
             <ThemeProvider
               attribute="class"
               defaultTheme="light"
@@ -29,7 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 {children}
               </Web3Providers>
             </ThemeProvider>
-          </ExistingProviders>
+          </DynamicProviders>
         </ReduxProvider>
         <SpeedInsights />
         <Analytics />
