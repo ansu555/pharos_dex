@@ -1,22 +1,53 @@
 import { useState, useEffect, useMemo } from "react";
-import { ethers, parseUnits, formatUnits } from "ethers"; // Import ethers
+import { ethers } from "ethers";
+import { formatUnits, parseUnits } from "ethers/lib/utils.js";
 import SimpleAmmABI from "@/app/abis/SimpleAmm.json";
 
 const AMM_ADDRESS = process.env.NEXT_PUBLIC_AMM_ADDRESS;
 
-export function useSwapLogic() {
-  const [tokens, setTokens] = useState([]);
+interface Token {
+  symbol: string;
+  name: string;
+  logoURI?: string;
+  address: string;
+  decimals: number;
+  chainId: number;
+}
+
+interface SwapLogicReturn {
+  tokens: Token[];
+  fromToken: string;
+  setFromToken: (address: string) => void;
+  toToken: string;
+  setToToken: (address: string) => void;
+  amount: string;
+  setAmount: (amount: string) => void;
+  slippage: number;
+  setSlippage: (slippage: number) => void;
+  deadline: number;
+  setDeadline: (deadline: number) => void;
+  canSwap: boolean;
+  quoteWei: bigint;
+  minAmountOut: bigint;
+  swap: (() => Promise<void>) | null;
+  swapLoading: boolean;
+  swapSuccess: boolean;
+  swapError: string | null;
+}
+
+export function useSwapLogic(): SwapLogicReturn {
+  const [tokens, setTokens] = useState<Token[]>([]);
   const [fromToken, setFromToken] = useState("");
   const [toToken, setToToken] = useState("");
   const [amount, setAmount] = useState("");
   const [slippage, setSlippage] = useState(0.5);
   const [deadline, setDeadline] = useState(30);
-  const [provider, setProvider] = useState(null);
-  const [signer, setSigner] = useState(null);
+  const [provider, setProvider] = useState<any>(null);
+  const [signer, setSigner] = useState<any>(null);
   const [swapLoading, setSwapLoading] = useState(false);
   const [swapSuccess, setSwapSuccess] = useState(false);
-  const [swapError, setSwapError] = useState<Error | null>(null);
-  const [quoteWei, setQuoteWei] = useState(0n); // Need state for quote
+  const [swapError, setSwapError] = useState<string | null>(null);
+  const [quoteWei, setQuoteWei] = useState<bigint>(BigInt(0));
 
   // load token list
   useEffect(() => {
@@ -24,7 +55,7 @@ export function useSwapLogic() {
       .then((r) => r.json())
       .then((j) => {
         const evm1 = j.tokens
-          .filter((t) => t.chainId === 1)
+          .filter((t: Token) => t.chainId === 1)
           .slice(0, 20);
         setTokens(evm1);
         if (evm1.length >= 2) {
@@ -40,19 +71,20 @@ export function useSwapLogic() {
       if (typeof window.ethereum !== "undefined") {
         try {
           await window.ethereum.request({ method: "eth_requestAccounts" });
-          const web3Provider = new ethers.BrowserProvider(window.ethereum);
+          const web3Provider = new (ethers as any).BrowserProvider(window.ethereum);
           setProvider(web3Provider);
           const web3Signer = await web3Provider.getSigner();
           setSigner(web3Signer);
         } catch (err) {
           console.error("Failed to connect wallet:", err);
+          setSwapError("Failed to connect wallet");
         }
       } else {
         console.log("Please install MetaMask!");
+        setSwapError("Please install MetaMask");
       }
     };
     connectWallet();
-    // Add listeners for account/chain changes if needed
   }, []);
 
   const canSwap =
@@ -68,7 +100,7 @@ export function useSwapLogic() {
     try {
       return parseUnits(amount || "0", fromDecimals);
     } catch {
-      return 0n;
+      return BigInt(0);
     }
   }, [amount, fromDecimals]);
 
@@ -81,41 +113,42 @@ export function useSwapLogic() {
   // Effect to get quote using ethers
   useEffect(() => {
     const fetchQuote = async () => {
-      if (provider && canSwap && amountWei > 0n) {
+      if (provider && canSwap && amountWei !== BigInt(0)) {
         try {
           const ammContract = new ethers.Contract(
-            AMM_ADDRESS,
+            AMM_ADDRESS || "",
             SimpleAmmABI.abi,
             provider
           );
           const rawQuote = await ammContract.getAmountOut(amountWei, isAToB);
-          setQuoteWei(rawQuote);
+          setQuoteWei(BigInt(rawQuote.toString()));
         } catch (err) {
           console.error("Failed to fetch quote:", err);
-          setQuoteWei(0n);
+          setQuoteWei(BigInt(0));
+          setSwapError("Failed to fetch quote");
         }
       } else {
-        setQuoteWei(0n);
+        setQuoteWei(BigInt(0));
       }
     };
     fetchQuote();
-  }, [provider, canSwap, amountWei, isAToB]); // Dependencies for quote
+  }, [provider, canSwap, amountWei, isAToB]);
 
   // apply slippage
   const minAmountOut = useMemo(() => {
-    if (quoteWei === 0n) return 0n;
+    if (quoteWei === BigInt(0)) return BigInt(0);
     return (
       (quoteWei * BigInt(10000 - Math.floor(slippage * 100))) /
-      10000n
+      BigInt(10000)
     );
   }, [quoteWei, slippage]);
 
   // Manual swap function using ethers
   const swap = async () => {
-    if (!signer || !canSwap || amountWei <= 0n || minAmountOut <= 0n) {
-      const error = new Error("Cannot swap: Invalid swap parameters");
-      setSwapError(error);
-      throw error;
+    if (!signer || !canSwap || amountWei === BigInt(0) || minAmountOut === BigInt(0)) {
+      const errorMsg = "Cannot swap: Invalid swap parameters";
+      setSwapError(errorMsg);
+      throw new Error(errorMsg);
     }
 
     setSwapLoading(true);
@@ -124,7 +157,7 @@ export function useSwapLogic() {
 
     try {
       const ammContract = new ethers.Contract(
-        AMM_ADDRESS,
+        AMM_ADDRESS || "",
         SimpleAmmABI.abi,
         signer
       );
@@ -135,9 +168,9 @@ export function useSwapLogic() {
       setSwapSuccess(true);
     } catch (err) {
       console.error("Swap failed:", err);
-      const error = err instanceof Error ? err : new Error(String(err));
-      setSwapError(error);
-      throw error;
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      setSwapError(errorMsg);
+      throw new Error(errorMsg);
     } finally {
       setSwapLoading(false);
     }
@@ -156,11 +189,11 @@ export function useSwapLogic() {
     deadline,
     setDeadline,
     canSwap,
-    quoteWei, // Return the state variable
+    quoteWei,
     minAmountOut,
-    swap: signer ? swap : null, // Only enable swap if signer exists
+    swap: signer ? swap : null,
     swapLoading,
     swapSuccess,
     swapError,
   };
-}
+} 
