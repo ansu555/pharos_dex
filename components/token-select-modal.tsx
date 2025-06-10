@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -9,9 +9,10 @@ import { Search } from "lucide-react";
 interface Token {
   symbol: string;
   name: string;
-  logo: string;
+  logoURI: string;
   address: string;
   decimals: number;
+  chainId: number;
 }
 
 interface TokenSelectModalProps {
@@ -19,7 +20,6 @@ interface TokenSelectModalProps {
   onClose: () => void;
   onSelect: (token: Token) => void;
   selectedToken?: Token | null;
-  tokens: Token[];
 }
 
 export function TokenSelectModal({
@@ -27,9 +27,31 @@ export function TokenSelectModal({
   onClose,
   onSelect,
   selectedToken,
-  tokens,
 }: TokenSelectModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [tokens, setTokens] = useState<Token[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch tokens from Uniswap list
+  useEffect(() => {
+    const fetchTokens = async () => {
+      try {
+        const response = await fetch("https://tokens.uniswap.org");
+        const data = await response.json();
+        // Filter for Ethereum mainnet tokens (chainId: 1)
+        const mainnetTokens = data.tokens.filter((token: Token) => token.chainId === 1);
+        setTokens(mainnetTokens);
+      } catch (error) {
+        console.error("Error fetching tokens:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (isOpen) {
+      fetchTokens();
+    }
+  }, [isOpen]);
 
   const filteredTokens = tokens.filter(
     (token) =>
@@ -57,36 +79,46 @@ export function TokenSelectModal({
         </div>
 
         <ScrollArea className="h-[300px] mt-4">
-          <div className="space-y-2">
-            {filteredTokens.map((token) => (
-              <button
-                key={token.address}
-                onClick={() => {
-                  onSelect(token);
-                  onClose();
-                }}
-                className={`w-full p-3 rounded-lg flex items-center gap-3 hover:bg-muted/50 transition-colors ${
-                  selectedToken?.address === token.address ? "bg-muted" : ""
-                }`}
-              >
-                <img
-                  src={token.logo}
-                  alt={token.symbol}
-                  className="w-8 h-8 rounded-full"
-                />
-                <div className="flex flex-col items-start">
-                  <span className="font-medium text-foreground">
-                    {token.symbol}
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    {token.name}
-                  </span>
-                </div>
-              </button>
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="flex items-center justify-center h-full">
+              Loading tokens...
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {filteredTokens.map((token) => (
+                <button
+                  key={token.address}
+                  onClick={() => {
+                    onSelect(token);
+                    onClose();
+                  }}
+                  className={`w-full p-3 rounded-lg flex items-center gap-3 hover:bg-muted/50 transition-colors ${
+                    selectedToken?.address === token.address ? "bg-muted" : ""
+                  }`}
+                >
+                  <img
+                    src={token.logoURI}
+                    alt={token.symbol}
+                    className="w-8 h-8 rounded-full"
+                    onError={(e) => {
+                      // Fallback image if token logo fails to load
+                      e.currentTarget.src = "/tokens/fallback.png";
+                    }}
+                  />
+                  <div className="flex flex-col items-start">
+                    <span className="font-medium text-foreground">
+                      {token.symbol}
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      {token.name}
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
         </ScrollArea>
       </DialogContent>
     </Dialog>
   );
-} 
+}

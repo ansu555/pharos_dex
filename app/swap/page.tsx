@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
-import { Settings, ArrowDownUp, ChevronDown, Loader2 } from "lucide-react"
+import { Settings, ArrowDownUp, ChevronDown } from "lucide-react"
 import {
   Select,
   SelectContent,
@@ -18,23 +18,11 @@ import { Footer } from "@/components/footer"
 import { SparklesCore } from "@/components/background2/sparkles"
 import { FloatingPaper } from "@/components/background2/floating-paper"
 import { useTheme } from "next-themes"
-import { useSwapLogic } from "@/app/services/swap-logic"
-import { formatUnits } from "ethers/lib/utils"
-import { useToast } from "@/components/ui/use-toast"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 
 interface Token {
   symbol: string
   name: string
-  logo: string
-  address: string
-  decimals: number
-}
-
-interface TokenListToken {
-  symbol: string
-  name: string
-  logoURI?: string
+  logoURI: string
   address: string
   decimals: number
   chainId: number
@@ -42,110 +30,36 @@ interface TokenListToken {
 
 const SwapPage = () => {
   const { theme } = useTheme()
-  const { toast } = useToast()
-  const {
-    tokens,
-    fromToken,
-    setFromToken,
-    toToken,
-    setToToken,
-    amount,
-    setAmount,
-    slippage,
-    setSlippage,
-    canSwap,
-    quoteWei,
-    minAmountOut,
-    swap,
-    swapLoading,
-    swapSuccess,
-    swapError,
-  } = useSwapLogic()
-
+  const [fromToken, setFromToken] = useState<Token | null>(null)
+  const [toToken, setToToken] = useState<Token | null>(null)
+  const [fromAmount, setFromAmount] = useState("")
+  const [toAmount, setToAmount] = useState("")
+  const [slippage, setSlippage] = useState("0.5")
   const [isFromTokenModalOpen, setIsFromTokenModalOpen] = useState(false)
   const [isToTokenModalOpen, setIsToTokenModalOpen] = useState(false)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
-  const [selectedFromToken, setSelectedFromToken] = useState<Token | null>(null)
-  const [selectedToToken, setSelectedToToken] = useState<Token | null>(null)
 
-  // Update selected tokens when fromToken/toToken changes
-  useEffect(() => {
-    if (fromToken && tokens.length > 0) {
-      const token = (tokens as TokenListToken[]).find(t => t.address === fromToken)
-      if (token) {
-        setSelectedFromToken({
-          symbol: token.symbol,
-          name: token.name,
-          logo: token.logoURI || "/tokens/default.png",
-          address: token.address,
-          decimals: token.decimals
-        })
-      }
-    }
-    if (toToken && tokens.length > 0) {
-      const token = (tokens as TokenListToken[]).find(t => t.address === toToken)
-      if (token) {
-        setSelectedToToken({
-          symbol: token.symbol,
-          name: token.name,
-          logo: token.logoURI || "/tokens/default.png",
-          address: token.address,
-          decimals: token.decimals
-        })
-      }
-    }
-  }, [fromToken, toToken, tokens])
+  const handleSwap = () => {
+    // Implement swap logic here
+    console.log("Swapping tokens...")
+  }
 
   const handleTokenSelect = (token: Token, isFrom: boolean) => {
     if (isFrom) {
-      setFromToken(token.address)
-      setSelectedFromToken(token)
+      setFromToken(token)
     } else {
-      setToToken(token.address)
-      setSelectedToToken(token)
+      setToToken(token)
     }
   }
 
   const handleSwapTokens = () => {
-    const tempFrom = fromToken
-    const tempTo = toToken
-    setFromToken(tempTo)
-    setToToken(tempFrom)
-    setAmount("")
+    const temp = fromToken
+    setFromToken(toToken)
+    setToToken(temp)
+    const tempAmount = fromAmount
+    setFromAmount(toAmount)
+    setToAmount(tempAmount)
   }
-
-  const handleSwap = async () => {
-    if (!swap) {
-      toast({
-        title: "Wallet not connected",
-        description: "Please connect your wallet to perform swaps",
-        variant: "destructive",
-      })
-      return
-    }
-
-    try {
-      await swap()
-      if (swapSuccess) {
-        toast({
-          title: "Swap successful!",
-          description: "Your tokens have been swapped successfully",
-        })
-      }
-    } catch (error) {
-      console.error("Swap error:", error)
-    }
-  }
-
-  // Format quote for display
-  const formattedQuote = selectedToToken && quoteWei > BigInt(0)
-    ? formatUnits(quoteWei, selectedToToken.decimals)
-    : "0.0"
-
-  // Calculate price impact (simplified)
-  const priceImpact = selectedFromToken && selectedToToken && amount && formattedQuote !== "0.0"
-    ? ((Number(formattedQuote) / Number(amount)) * 100).toFixed(2)
-    : "0.00"
 
   return (
     <div className="flex min-h-screen flex-col relative">
@@ -188,25 +102,26 @@ const SwapPage = () => {
               <Input
                 type="number"
                 placeholder="0.0"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                value={fromAmount}
+                onChange={(e) => setFromAmount(e.target.value)}
                 className="text-2xl bg-background"
-                disabled={swapLoading}
               />
               <Button
                 variant="outline"
                 className="min-w-[120px]"
                 onClick={() => setIsFromTokenModalOpen(true)}
-                disabled={swapLoading}
               >
-                {selectedFromToken ? (
+                {fromToken ? (
                   <div className="flex items-center gap-2">
                     <img
-                      src={selectedFromToken.logo}
-                      alt={selectedFromToken.symbol}
+                      src={fromToken.logoURI}
+                      alt={fromToken.symbol}
                       className="w-6 h-6"
+                      onError={(e) => {
+                        e.currentTarget.src = "/tokens/fallback.png";
+                      }}
                     />
-                    <span>{selectedFromToken.symbol}</span>
+                    <span>{fromToken.symbol}</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
@@ -225,7 +140,6 @@ const SwapPage = () => {
               size="icon"
               className="rounded-full bg-muted hover:bg-muted/80"
               onClick={handleSwapTokens}
-              disabled={swapLoading}
             >
               <ArrowDownUp className="h-5 w-5" />
             </Button>
@@ -239,26 +153,28 @@ const SwapPage = () => {
             </div>
             <div className="flex gap-2">
               <Input
-                type="text"
+                type="number"
                 placeholder="0.0"
-                value={formattedQuote}
-                readOnly
+                value={toAmount}
+                onChange={(e) => setToAmount(e.target.value)}
                 className="text-2xl bg-background"
               />
               <Button
                 variant="outline"
                 className="min-w-[120px]"
                 onClick={() => setIsToTokenModalOpen(true)}
-                disabled={swapLoading}
               >
-                {selectedToToken ? (
+                {toToken ? (
                   <div className="flex items-center gap-2">
                     <img
-                      src={selectedToToken.logo}
-                      alt={selectedToToken.symbol}
+                      src={toToken.logoURI}
+                      alt={toToken.symbol}
                       className="w-6 h-6"
+                      onError={(e) => {
+                        e.currentTarget.src = "/tokens/fallback.png";
+                      }}
                     />
-                    <span>{selectedToToken.symbol}</span>
+                    <span>{toToken.symbol}</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
@@ -274,19 +190,11 @@ const SwapPage = () => {
           <div className="space-y-2 mb-6 p-4 bg-muted/50 rounded-lg">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Price</span>
-              <span className="text-foreground">
-                {amount && formattedQuote !== "0.0"
-                  ? `1 ${selectedFromToken?.symbol} = ${(Number(formattedQuote) / Number(amount)).toFixed(6)} ${selectedToToken?.symbol}`
-                  : "0.0"}
-              </span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Price Impact</span>
-              <span className="text-foreground">{priceImpact}%</span>
+              <span className="text-foreground">0.0 USD</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Slippage Tolerance</span>
-              <Select value={slippage.toString()} onValueChange={(value) => setSlippage(Number(value))}>
+              <Select value={slippage} onValueChange={setSlippage}>
                 <SelectTrigger className="w-[100px]">
                   <SelectValue>{slippage}%</SelectValue>
                 </SelectTrigger>
@@ -299,34 +207,18 @@ const SwapPage = () => {
             </div>
           </div>
 
-          {/* Error Alert */}
-          {swapError && (
-            <Alert variant="destructive" className="mb-4">
-              <AlertDescription>
-                {swapError || "An error occurred during the swap"}
-              </AlertDescription>
-            </Alert>
-          )}
-
           {/* Swap Button */}
           <Button
             className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
             size="lg"
             onClick={handleSwap}
-            disabled={!canSwap || swapLoading}
+            disabled={!fromToken || !toToken || !fromAmount || !toAmount}
           >
-            {swapLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Swapping...
-              </>
-            ) : !selectedFromToken || !selectedToToken ? (
-              "Select Tokens"
-            ) : !amount ? (
-              "Enter Amount"
-            ) : (
-              "Swap"
-            )}
+            {!fromToken || !toToken
+              ? "Select Tokens"
+              : !fromAmount || !toAmount
+              ? "Enter Amount"
+              : "Swap"}
           </Button>
         </Card>
       </main>
@@ -338,27 +230,13 @@ const SwapPage = () => {
         isOpen={isFromTokenModalOpen}
         onClose={() => setIsFromTokenModalOpen(false)}
         onSelect={(token) => handleTokenSelect(token, true)}
-        selectedToken={selectedFromToken}
-        tokens={(tokens as TokenListToken[]).map(t => ({
-          symbol: t.symbol,
-          name: t.name,
-          logo: t.logoURI || "/tokens/default.png",
-          address: t.address,
-          decimals: t.decimals
-        }))}
+        selectedToken={fromToken}
       />
       <TokenSelectModal
         isOpen={isToTokenModalOpen}
         onClose={() => setIsToTokenModalOpen(false)}
         onSelect={(token) => handleTokenSelect(token, false)}
-        selectedToken={selectedToToken}
-        tokens={(tokens as TokenListToken[]).map(t => ({
-          symbol: t.symbol,
-          name: t.name,
-          logo: t.logoURI || "/tokens/default.png",
-          address: t.address,
-          decimals: t.decimals
-        }))}
+        selectedToken={toToken}
       />
     </div>
   )
